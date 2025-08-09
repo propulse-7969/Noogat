@@ -1,88 +1,123 @@
-## Noogat Deck Consistency Checker
+# 🚀 Noogat Deck Consistency Checker
 
-AI-enabled CLI tool that analyzes multi-slide PowerPoint decks (and/or slide images) to flag factual and logical inconsistencies across slides using Gemini 2.5 Flash.
+**AI-powered, lightning-fast, and brutally honest about your slides.**
 
-### Features
-- Extracts text and embedded images per slide from `.pptx` decks
-- Uses Gemini 2.5 Flash to extract structured claims (numeric/text/timeline) from slide text/images
-- Cross-slide checks:
-  - Numeric conflicts (same metric, different values)
-  - Percentage sum issues (>100% or implausible totals)
-  - Contradictory textual claims (e.g., “highly competitive” vs “few competitors”)
+---
+
+## What is Noogat?
+Noogat is your AI sidekick for PowerPoint decks. It scans your entire presentation and instantly flags any factual, logical, or numeric inconsistencies—so you never get caught with a "10 + 20 + 30 = 80" moment again.
+
+- **Input:** `.pptx` file (PowerPoint deck)
+- **Output:** Beautiful, color-coded console summary and a detailed JSON report of all detected issues, with slide numbers and crisp explanations.
+- **Powered by:** Google Gemini 2.5 Pro (or Flash) LLM
+
+---
+
+## ✨ Features
+- **Zero-effort deck analysis:** Just point to your PPTX, and Noogat does the rest.
+- **AI-driven cross-slide checks:**
+  - Contradictory numbers, facts, or claims
+  - Percentage sum issues (e.g., market shares not adding up)
   - Timeline/date mismatches
-- Clear, structured report referencing slide numbers and evidence
+  - Duplicate or conflicting statements
+- **Crisp, data-focused reporting:**
+  - Each issue is flagged with slide numbers, a direct data flag, and a brief explanation
+  - Issues are classified by type (sum, contradiction, timeline, etc.)
+  - Serial numbers for easy reference
+- **Works offline (except for Gemini API calls)**
+- **Beginner-friendly CLI**
 
-### Requirements
-- Python 3.10+
-- Google Gemini API key (free): `https://aistudio.google.com/app/apikey`
+---
 
-### Setup
-```bash
-python -m venv .venv
-./.venv/Scripts/Activate.ps1  # on Windows PowerShell
-# Windows (recommended):
-pip install -r requirements-win.txt
-
-# If that fails, try minimal core first (no PPTX/image), then add PPTX libs:
-pip install -r requirements-core.txt
-pip install python-pptx Pillow==9.5.0
+## 🖼️ How It Works
+```mermaid
+graph TD;
+    A[Upload PPTX] --> B[Extract slide text & tables];
+    B --> C[Send all slides to Gemini];
+    C --> D[Gemini finds all inconsistencies];
+    D --> E[Console summary & JSON report];
 ```
 
-Provide your API key via environment variable or `creds.py`:
-- Environment variable (recommended):
-  - PowerShell: `setx GOOGLE_API_KEY "YOUR_KEY_HERE"`
-  - Then restart your shell
-- Or edit `creds.py` and set `GOOGLE_API_KEY = "YOUR_KEY_HERE"`
+---
 
-### Usage
-Place your deck at `place_ppt_here/NoogatAssignment.pptx` or supply a path.
+## 🛠️ Setup
+1. **Python 3.10+ required**
+2. **Get a Google Gemini API key:** [Get your free key here](https://aistudio.google.com/app/apikey)
+3. **Install dependencies:**
+   ```bash
+   python -m venv .venv
+   ./.venv/Scripts/Activate.ps1  # on Windows PowerShell
+   pip install -r requirements-win.txt
+   # Or, for minimal core:
+   pip install -r requirements-core.txt
+   pip install python-pptx Pillow==9.5.0
+   ```
+4. **Set your API key:**
+   - Recommended: `setx GOOGLE_API_KEY "YOUR_KEY_HERE"` (then restart your shell)
+   - Or edit `creds.py` and set `GOOGLE_API_KEY = "YOUR_KEY_HERE"`
 
-```bash
-python main.py --pptx place_ppt_here/NoogatAssignment.pptx --pretty
-```
+---
 
-Optional: analyze a folder of slide images (PNG/JPG). Images will be treated as additional slides:
+## 🚦 Usage
+1. **Place your deck:**
+   - Default: `place_ppt_here/NoogatAssignment.pptx`
+   - Or use `--pptx path/to/your.pptx`
+2. **Run the checker:**
+   ```bash
+   python main.py --pptx place_ppt_here/NoogatAssignment.pptx --pretty
+   ```
+   - Add `--output report.json` to save a JSON report
+   - Use `--max-slides N` to limit slides analyzed
+   - Use `--model gemini-2.5-pro` or `--model gemini-2.5-flash` as needed
 
-```bash
-python main.py --images-dir path/to/images --pretty
-```
-
-Full CLI:
+**Full CLI:**
 ```bash
 python main.py \
   [--pptx PATH_TO_PPTX] \
-  [--images-dir PATH_TO_DIR] \
-  [--model gemini-2.5-flash] \
   [--max-slides N] \
   [--output report.json] \
   [--pretty] \
-  [--no-vision]  # disable sending images to Gemini
+  [--model gemini-2.5-pro]
 ```
 
-### Output
-- Console summary highlighting issues by type
-- Optional JSON file with full structured report, including cross-references to slides and evidence snippets
+---
 
-### How it works (high level)
-1. Parse `.pptx` to get per-slide text, tables, and embedded images
-2. For each slide, call Gemini 2.5 Flash to extract structured claims (strict JSON)
-3. Normalize and cluster claims across slides
-4. Run rule-based checks for numeric conflicts, percentage sums, and timelines; use Gemini to judge borderline textual contradictions
-5. Emit a structured report
+## 📊 Output Example
+- **Console summary:**
+  - Table with serial number, error type, slides involved, and a crisp flag + explanation
+- **JSON report:**
+  - All issues, with slide references and explanations, for further analysis or sharing
 
-### Limitations
-- LLM extraction quality impacts downstream checks; malformed JSON is heuristically repaired but may miss edge cases
-- Numeric normalization and entity canonicalization are heuristic; different phrasings may not cluster perfectly
-- Percentage sum checks are conservative; domain-specific aggregation logic is not included
-- Timeline reasoning is basic; complex dependencies may require bespoke logic
+---
 
-### Development
-Run on the provided sample:
-```bash
-python main.py --pptx place_ppt_here/NoogatAssignment.pptx --pretty --output sample_report.json
-```
+## 🧠 How Noogat Thinks (Under the Hood)
+1. **Extracts all text (and tables) from each slide**
+2. **Sends the entire deck to Gemini in one go**
+3. **Gemini analyzes for cross-slide contradictions, sum errors, timeline issues, and more**
+4. **Noogat parses the AI's response, classifies each issue, and presents it in a human-friendly way**
 
-### License
+---
+
+## 🩹 Troubleshooting & Tips
+- **Gemini API key not found?**
+  - Make sure you set the environment variable or edit `creds.py`.
+- **No issues detected, but you expect some?**
+  - Check that your slides have clear, extractable text (not just images)
+  - Try with a smaller deck or fewer slides
+  - Use `--model gemini-2.5-pro` for best results
+- **Want even crisper or more verbose output?**
+  - Tweak the prompt in `gemini_client.py` or the formatting in `reporter.py`
+
+---
+
+## 🏆 Why Noogat?
+- **Save time:** Instantly catch errors that would take hours to spot manually
+- **Impress your audience:** No more embarrassing slide mistakes
+- **AI transparency:** See exactly what was flagged, where, and why
+
+---
+
+## 📄 License
 MIT
 
 
