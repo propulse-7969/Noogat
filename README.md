@@ -47,10 +47,7 @@ graph TD;
    ```bash
    python -m venv .venv
    ./.venv/Scripts/Activate.ps1  # on Windows PowerShell
-   pip install -r requirements-win.txt
-   # Or, for minimal core:
-   pip install -r requirements-core.txt
-   pip install python-pptx Pillow==9.5.0
+   pip install -r requirements.txt
    ```
 4. **Set your API key:**
    - Recommended: `setx GOOGLE_API_KEY "YOUR_KEY_HERE"` (then restart your shell)

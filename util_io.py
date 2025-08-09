@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import base64
 import io
 import json
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, List, Optional
 
 from PIL import Image
 import orjson
@@ -36,36 +35,10 @@ def to_json(obj: Any) -> str:
         return json.dumps(obj, ensure_ascii=False)
 
 
-def from_json(text: str) -> Any:
-    try:
-        return orjson.loads(text)
-    except Exception:
-        return json.loads(text)
-
-
 def pil_image_to_png_bytes(image: Image.Image) -> bytes:
     with io.BytesIO() as output:
         image.save(output, format="PNG")
         return output.getvalue()
-
-
-def load_images_from_dir(images_dir: str) -> List[Image.Image]:
-    images: List[Image.Image] = []
-    if not images_dir:
-        return images
-    if not os.path.isdir(images_dir):
-        return images
-
-    supported = {".png", ".jpg", ".jpeg", ".bmp", ".webp", ".tif", ".tiff"}
-    for name in sorted(os.listdir(images_dir)):
-        ext = os.path.splitext(name)[1].lower()
-        if ext in supported:
-            path = os.path.join(images_dir, name)
-            try:
-                images.append(Image.open(path).convert("RGB"))
-            except Exception:
-                continue
-    return images
 
 
 @dataclass

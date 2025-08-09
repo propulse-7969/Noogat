@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import os
-from typing import Any
 
 from pptx_loader import load_pptx
 from gemini_client import configure_gemini, find_slide_anomalies_with_gemini
