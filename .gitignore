@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+*.log
+/.idea/
+/.vscode/
+*.egg-info/
+env/
+venv/
+report.json
+sample_report.json
+place_ppt_here/*.png
+place_ppt_here/*.jpg
+place_ppt_here/*.jpeg
+
