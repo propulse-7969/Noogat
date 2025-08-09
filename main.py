@@ -34,10 +34,10 @@ def main() -> None:
     slide_dict = {idx: sc.text for idx, sc in enumerate(slides, 1)}
 
     # DEBUG: 
-    # print("\n===== SLIDE DICTIONARY SENT TO GEMINI =====\n")
-    # import json
-    # print(json.dumps(slide_dict, indent=2, ensure_ascii=False))
-    # print("\n==========================================\n")
+    print("\n===== SLIDE DICTIONARY SENT TO GEMINI =====\n")
+    import json
+    print(json.dumps(slide_dict, indent=2, ensure_ascii=False))
+    print("\n==========================================\n")
 
     # Use Gemini to find anomalies across the slide dictionary
     anomalies = find_slide_anomalies_with_gemini(args.model, slide_dict)

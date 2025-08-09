@@ -107,9 +107,9 @@ def find_slide_anomalies_with_gemini(model_name: str, slide_dict: dict[int, str]
     resp = model.generate_content([{"text": prompt}], generation_config={"temperature": 1.7})
     text = (resp.text or "[]").strip()
     # DEBUG:
-    # print("\n===== RAW GEMINI RESPONSE =====\n")
-    # print(text)
-    # print("\n==============================\n")
+    print("\n===== RAW GEMINI RESPONSE =====\n")
+    print(text)
+    print("\n==============================\n")
     try:
         import re
         # Remove Markdown code block markers if present
