@@ -1,120 +1,85 @@
-# 🚀 Noogat Deck Consistency Checker
+## Noogat Deck Consistency Checker
 
-**AI-powered, lightning-fast, and brutally honest about your slides.**
+A command-line tool that analyzes PowerPoint decks for inconsistencies using Google Gemini. It processes slide text and embedded pictures, detects cross-slide issues, and outputs a machine-readable JSON report and/or a readable console summary.
 
----
+### Capabilities
+- Detects contradictions and duplicated/conflicting statements across slides
+- Flags numeric issues (e.g., sums/totals, percentage inconsistencies)
+- Highlights timeline/date mismatches
+- Processes embedded pictures on slides and sends them for multimodal analysis
 
-## What is Noogat?
-Noogat is your AI sidekick for PowerPoint decks. It scans your entire presentation and instantly flags any factual, logical, or numeric inconsistencies—so you never get caught with a "10 + 20 + 30 = 80" moment again.
+### How it works
+- `pptx_loader.py` extracts slide text (including tables) and embedded pictures (`PICTURE` shapes only)
+- `gemini_client.py` sends per-slide text and inline PNG images to Gemini with concise instructions
+- `reporter.py` formats the model response into a console table and JSON report
 
-- **Input:** `.pptx` file (PowerPoint deck)
-- **Output:** Beautiful, color-coded console summary and a detailed JSON report of all detected issues, with slide numbers and crisp explanations.
-- **Powered by:** Google Gemini 2.5 Pro (or Flash) LLM
+## Prerequisites
+- Python 3.10+
+- A Google Gemini API key
+  - Obtain a key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
----
-
-## ✨ Features
-- **Zero-effort deck analysis:** Just point to your PPTX, and Noogat does the rest.
-- **AI-driven cross-slide checks:**
-  - Contradictory numbers, facts, or claims
-  - Percentage sum issues (e.g., market shares not adding up)
-  - Timeline/date mismatches
-  - Duplicate or conflicting statements
-- **Crisp, data-focused reporting:**
-  - Each issue is flagged with slide numbers, a direct data flag, and a brief explanation
-  - Issues are classified by type (sum, contradiction, timeline, etc.)
-  - Serial numbers for easy reference
-- **Works offline (except for Gemini API calls)**
-- **Beginner-friendly CLI**
-
----
-
-## 🖼️ How It Works
-```mermaid
-graph TD;
-    A[Upload PPTX] --> B[Extract slide text & tables];
-    B --> C[Send all slides to Gemini];
-    C --> D[Gemini finds all inconsistencies];
-    D --> E[Console summary & JSON report];
-```
-
----
-
-## 🛠️ Setup
-1. **Python 3.10+ required**
-2. **Get a Google Gemini API key:** [Get your free key here](https://aistudio.google.com/app/apikey)
-3. **Install dependencies:**
-   ```bash
-   python -m venv .venv
-   ./.venv/Scripts/Activate.ps1  # on Windows PowerShell
-   pip install -r requirements.txt
-   ```
-4. **Set your API key:**
-   - Recommended: `setx GOOGLE_API_KEY "YOUR_KEY_HERE"` (then restart your shell)
-   - Or edit `creds.py` and set `GOOGLE_API_KEY = "YOUR_KEY_HERE"`
-
----
-
-## 🚦 Usage
-1. **Place your deck:**
-   - Default: `place_ppt_here/NoogatAssignment.pptx`
-   - Or use `--pptx path/to/your.pptx`
-2. **Run the checker:**
-   ```bash
-   python main.py --pptx place_ppt_here/NoogatAssignment.pptx --pretty
-   ```
-   - Add `--output report.json` to save a JSON report
-   - Use `--max-slides N` to limit slides analyzed
-   - Use `--model gemini-2.5-pro` or `--model gemini-2.5-flash` as needed
-
-**Full CLI:**
+## Installation
 ```bash
-python main.py \
-  [--pptx PATH_TO_PPTX] \
-  [--max-slides N] \
-  [--output report.json] \
-  [--pretty] \
-  [--model gemini-2.5-pro]
+python -m venv .venv
+./.venv/Scripts/Activate.ps1  # Windows PowerShell
+pip install -r requirements.txt
 ```
 
----
+## Configuration
+The tool reads the API key in this order:
+- Environment variables: `GOOGLE_API_KEY`, `GOOGLE_APIKEY`, or `GEMINI_API_KEY`
+- Fallback module `creds.py` with `GOOGLE_API_KEY = "..."`
 
-## 📊 Output Example
-- **Console summary:**
-  - Table with serial number, error type, slides involved, and a crisp flag + explanation
-- **JSON report:**
-  - All issues, with slide references and explanations, for further analysis or sharing
+Examples:
+```powershell
+setx GOOGLE_API_KEY "YOUR_KEY"   # Windows (restart the shell)
+```
+```python
+# creds.py
+GOOGLE_API_KEY = "YOUR_KEY"
+```
 
----
+## Usage
+Basic command:
+```bash
+python main.py --pptx place_ppt_here/NoogatAssignment.pptx --pretty
+```
 
-## 🧠 How Noogat Thinks (Under the Hood)
-1. **Extracts all text (and tables) from each slide**
-2. **Sends the entire deck to Gemini in one go**
-3. **Gemini analyzes for cross-slide contradictions, sum errors, timeline issues, and more**
-4. **Noogat parses the AI's response, classifies each issue, and presents it in a human-friendly way**
+CLI options:
+- `--pptx PATH` (string): Path to a `.pptx` file. Default: `place_ppt_here/NoogatAssignment.pptx`
+- `--max-slides N` (int): Limit the number of slides analyzed (0 = all). Default: 0
+- `--output FILE` (string): Write the JSON report to this path
+- `--pretty` (flag): Print a formatted console summary instead of raw JSON
+- `--model NAME` (string): Gemini model (e.g., `gemini-2.5-pro`, `gemini-2.5-flash`). Default: `gemini-2.5-pro`
 
----
+Examples:
+```bash
+# Pretty console summary
+python main.py --pptx your_deck.pptx --pretty
 
-## 🩹 Troubleshooting & Tips
-- **Gemini API key not found?**
-  - Make sure you set the environment variable or edit `creds.py`.
-- **No issues detected, but you expect some?**
-  - Check that your slides have clear, extractable text (not just images)
-  - Try with a smaller deck or fewer slides
-  - Use `--model gemini-2.5-pro` for best results
-- **Want even crisper or more verbose output?**
-  - Tweak the prompt in `gemini_client.py` or the formatting in `reporter.py`
+# Raw JSON to stdout
+python main.py --pptx your_deck.pptx
 
----
+# Save JSON to file
+python main.py --pptx your_deck.pptx --output report.json
 
-## 🏆 Why Noogat?
-- **Save time:** Instantly catch errors that would take hours to spot manually
-- **Impress your audience:** No more embarrassing slide mistakes
-- **AI transparency:** See exactly what was flagged, where, and why
+# Analyze only first 10 slides using Gemini Flash
+python main.py --pptx your_deck.pptx --max-slides 10 --model gemini-2.5-flash
+```
 
----
+## Output
+- Console summary: grouped by inferred error type (sum/total, contradiction, timeline/date, percent, duplicate, numeric, text)
+- JSON report: `{"issues": [...]}` where each issue contains `slides`, `message`, and `type`
 
-## 📄 License
+## Notes and limitations
+- Only embedded pictures (`PICTURE` shapes) are extracted. Charts, SmartArt, vector shapes, and slide backgrounds are not rasterized.
+- The tool does not render slide thumbnails; content is limited to extracted text + images.
+- Gemini response is expected to be a strict JSON array of issues; unexpected formats are handled conservatively.
+
+## Troubleshooting
+- Missing API key: ensure `GOOGLE_API_KEY` is set or create `creds.py` with `GOOGLE_API_KEY`.
+- PPTX not found: verify the `--pptx` path.
+- Empty output: try `--model gemini-2.5-pro`, reduce to a smaller deck, or ensure textual content is actually extractable.
+
+## License
 MIT
-
-
