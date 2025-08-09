@@ -21,9 +21,11 @@ def print_summary(issues: List[Dict[str, Any]]) -> None:
     for itype, items in grouped.items():
         console.rule(f"{itype} ({len(items)})")
         table = Table(show_lines=False)
+        table.add_column("S. No.", no_wrap=True, width=6)
+        table.add_column("Error Type", no_wrap=True, width=16)
         table.add_column("Slides", no_wrap=False, width=20)
         table.add_column("Message", no_wrap=False)
-        for it in items:
+        for idx, it in enumerate(items, 1):
             slides = ", ".join(str(s) for s in sorted(set(it.get("slides", []))))
             msg = it.get("message", "")
             # Make message as data-focused as possible, but do not truncate
@@ -46,8 +48,24 @@ def print_summary(issues: List[Dict[str, Any]]) -> None:
                     flag = num_phrase.group(1)
                 else:
                     flag = msg
-            # Do NOT truncate the flag/message
-            table.add_row(slides, flag)
+            # Classify error type
+            error_type = "other"
+            lower_msg = msg.lower()
+            if "sum" in lower_msg or "total" in lower_msg:
+                error_type = "sum/total"
+            elif "contradict" in lower_msg or "conflict" in lower_msg:
+                error_type = "contradiction"
+            elif "timeline" in lower_msg or "date" in lower_msg or "year" in lower_msg:
+                error_type = "timeline/date"
+            elif "percent" in lower_msg or "%" in lower_msg:
+                error_type = "percent"
+            elif "duplicate" in lower_msg or "same value" in lower_msg:
+                error_type = "duplicate"
+            elif "numeric" in lower_msg or re.search(r'\d', lower_msg):
+                error_type = "numeric"
+            elif "text" in lower_msg:
+                error_type = "text"
+            table.add_row(str(idx), error_type, slides, flag)
         console.print(table)
 
 
