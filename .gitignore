@@ -10,6 +10,7 @@ __pycache__/
 env/
 venv/
 report.json
+creds.py
 sample_report.json
 place_ppt_here/*.png
 place_ppt_here/*.jpg
