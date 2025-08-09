@@ -30,24 +30,24 @@ def main() -> None:
     if args.max_slides and args.max_slides > 0:
         slides = slides[: args.max_slides]
 
-    # Build a dictionary: {slide_number: raw_text}
-    slide_dict = {idx: sc.text for idx, sc in enumerate(slides, 1)}
+    # DEBUG: show brief preview of slides sent to Gemini
+    # if slides:
+    #     print("\n===== SLIDES SENT TO GEMINI (PREVIEW) =====\n")
+    #     import json
+    #     preview = {sc.slide_index: (sc.text[:300] + ('...' if len(sc.text) > 300 else '')) for sc in slides[:5]}
+    #     print(json.dumps(preview, indent=2, ensure_ascii=False))
+    #     print("\n==========================================\n")
 
-    # DEBUG: 
-    print("\n===== SLIDE DICTIONARY SENT TO GEMINI =====\n")
-    import json
-    print(json.dumps(slide_dict, indent=2, ensure_ascii=False))
-    print("\n==========================================\n")
-
-    # Use Gemini to find anomalies across the slide dictionary
-    anomalies = find_slide_anomalies_with_gemini(args.model, slide_dict)
+    # Use Gemini to find anomalies across the slides (text + images)
+    anomalies = find_slide_anomalies_with_gemini(args.model, slides)
 
     # Normalize Gemini output for reporter compatibility
     for issue in anomalies:
-        if "type" not in issue:
-            issue["type"] = "anomaly"
+        # Keep message simple and human-friendly: use Gemini's description as-is
         if "message" not in issue and "description" in issue:
             issue["message"] = issue["description"]
+        if "type" not in issue:
+            issue["type"] = "anomaly"
 
     # Output
     if args.pretty:

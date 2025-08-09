@@ -28,26 +28,6 @@ def print_summary(issues: List[Dict[str, Any]]) -> None:
         for idx, it in enumerate(items, 1):
             slides = ", ".join(str(s) for s in sorted(set(it.get("slides", []))))
             msg = it.get("message", "")
-            # Make message as data-focused as possible, but do not truncate
-            flag = None
-            eq_match = re.search(r'(\d+\s*[+\-*/]\s*\d+(?:\s*[+\-*/]\s*\d+)*\s*=*\s*\d+)', msg)
-            if eq_match:
-                flag = eq_match.group(1)
-            else:
-                sum_match = re.search(r'sum.*?is only [^\.]+', msg)
-                if sum_match:
-                    flag = sum_match.group(0)
-                else:
-                    nums = re.findall(r'([\w\s\'\"]*?\d+[\w\s\'\"]*)', msg)
-                    nums = [n.strip() for n in nums if len(n.strip()) > 0]
-                    if nums:
-                        flag = '; '.join(nums)
-            if not flag:
-                num_phrase = re.search(r'([^.]*\d+[^.]*)', msg)
-                if num_phrase:
-                    flag = num_phrase.group(1)
-                else:
-                    flag = msg
             # Classify error type
             error_type = "other"
             lower_msg = msg.lower()
@@ -65,7 +45,8 @@ def print_summary(issues: List[Dict[str, Any]]) -> None:
                 error_type = "numeric"
             elif "text" in lower_msg:
                 error_type = "text"
-            table.add_row(str(idx), error_type, slides, flag)
+            # Show full message without trimming; table will line-wrap as needed
+            table.add_row(str(idx), error_type, slides, msg)
         console.print(table)
 
 
